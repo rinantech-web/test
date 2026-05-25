@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dot Dodge</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: #111827;
+      color: #f9fafb;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+    }
+    .wrap { text-align: center; }
+    canvas {
+      background: #1f2937;
+      border: 2px solid #374151;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.35);
+      max-width: 92vw;
+      height: auto;
+    }
+    .hud {
+      margin: 0.75rem 0;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      font-weight: 700;
+    }
+    button {
+      margin-top: .5rem;
+      padding: .5rem .9rem;
+      border: 1px solid #4b5563;
+      background: #374151;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Dot Dodge</h1>
+    <p>Use arrow keys or WASD. Dodge falling blocks as long as you can.</p>
+    <div class="hud">
+      <div>Score: <span id="score">0</span></div>
+      <div>Best: <span id="best">0</span></div>
+    </div>
+    <canvas id="game" width="480" height="640" aria-label="Game canvas"></canvas>
+    <div><button id="restart">Restart</button></div>
+  </main>
+
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const bestEl = document.getElementById('best');
+    const restartBtn = document.getElementById('restart');
+
+    const player = { x: 220, y: 580, size: 28, speed: 5 };
+    let obstacles = [];
+    let keys = new Set();
+    let score = 0;
+    let best = Number(localStorage.getItem('dot-dodge-best') || 0);
+    let running = true;
+    let spawnTimer = 0;
+    let difficulty = 1;
+
+    bestEl.textContent = best;
+
+    function resetGame() {
+      player.x = 220;
+      player.y = 580;
+      obstacles = [];
+      score = 0;
+      difficulty = 1;
+      spawnTimer = 0;
+      running = true;
+      scoreEl.textContent = '0';
+    }
+
+    function spawnObstacle() {
+      const w = 24 + Math.random() * 40;
+      obstacles.push({
+        x: Math.random() * (canvas.width - w),
+        y: -40,
+        w,
+        h: 20 + Math.random() * 24,
+        speed: 2 + Math.random() * 2 + difficulty * 0.35,
+      });
+    }
+
+    function rectHit(a, b) {
+      return a.x < b.x + b.w && a.x + a.size > b.x && a.y < b.y + b.h && a.y + a.size > b.y;
+    }
+
+    function update() {
+      if (!running) return;
+
+      if (keys.has('ArrowLeft') || keys.has('a')) player.x -= player.speed;
+      if (keys.has('ArrowRight') || keys.has('d')) player.x += player.speed;
+      if (keys.has('ArrowUp') || keys.has('w')) player.y -= player.speed;
+      if (keys.has('ArrowDown') || keys.has('s')) player.y += player.speed;
+
+      player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
+      player.y = Math.max(0, Math.min(canvas.height - player.size, player.y));
+
+      spawnTimer -= 1;
+      if (spawnTimer <= 0) {
+        spawnObstacle();
+        spawnTimer = Math.max(12, 50 - difficulty * 3);
+      }
+
+      for (const obs of obstacles) obs.y += obs.speed;
+      obstacles = obstacles.filter((o) => o.y < canvas.height + 60);
+
+      const pRect = { ...player };
+      for (const obs of obstacles) {
+        if (rectHit(pRect, obs)) {
+          running = false;
+          if (score > best) {
+            best = score;
+            localStorage.setItem('dot-dodge-best', String(best));
+            bestEl.textContent = best;
+          }
+          break;
+        }
+      }
+
+      score += 1;
+      if (score % 300 === 0) difficulty += 1;
+      scoreEl.textContent = Math.floor(score / 10);
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#10b981';
+      ctx.fillRect(player.x, player.y, player.size, player.size);
+
+      ctx.fillStyle = '#f87171';
+      for (const obs of obstacles) {
+        ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+      }
+
+      if (!running) {
+        ctx.fillStyle = 'rgba(0,0,0,.5)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 42px system-ui';
+        ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2 - 16);
+        ctx.font = '20px system-ui';
+        ctx.fillText('Press Restart to play again', canvas.width / 2, canvas.height / 2 + 24);
+      }
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    window.addEventListener('keydown', (e) => keys.add(e.key));
+    window.addEventListener('keyup', (e) => keys.delete(e.key));
+    restartBtn.addEventListener('click', resetGame);
+
+    resetGame();
+    loop();
+  </script>
+</body>
+</html>
