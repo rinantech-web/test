@@ -1,0 +1,192 @@
+:root {
+  --bg: #1b1330;
+  --bg-deep: #140d24;
+  --gold: #d9b54a;
+  --gold-dim: #a98c3c;
+  --ink: #f2ece4;
+  --ink-dim: rgba(242, 236, 228, 0.62);
+  --line: rgba(242, 236, 228, 0.14);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  position: relative;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+}
+
+/* single soft light source behind the hero, our one deliberate flourish */
+.glow {
+  position: absolute;
+  top: -18%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 900px;
+  background: radial-gradient(circle, rgba(217, 181, 74, 0.16) 0%, rgba(217, 181, 74, 0) 62%);
+  pointer-events: none;
+}
+
+.wrap {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  min-height: 100vh;
+  padding: 48px 28px 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+.mark {
+  font-family: 'Fraunces', serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  color: var(--gold);
+}
+
+.hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.hero h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(2.4rem, 7vw, 3.6rem);
+  line-height: 1.08;
+  margin: 0 0 22px;
+  max-width: 11ch;
+}
+
+.sub {
+  font-size: 1.02rem;
+  line-height: 1.6;
+  color: var(--ink-dim);
+  max-width: 42ch;
+  margin: 0 0 32px;
+}
+
+.signup {
+  display: flex;
+  gap: 10px;
+  max-width: 420px;
+}
+
+.signup input {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: rgba(242, 236, 228, 0.04);
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.signup input::placeholder { color: rgba(242, 236, 228, 0.35); }
+
+.signup input:focus,
+.signup button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.signup button {
+  padding: 14px 22px;
+  border-radius: 8px;
+  border: none;
+  background: var(--gold);
+  color: var(--bg-deep);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.signup button:hover { background: #eac862; }
+
+.note {
+  margin: 12px 0 0;
+  font-size: 0.82rem;
+  color: rgba(242, 236, 228, 0.4);
+}
+
+.note.success { color: var(--gold); }
+.note.error { color: #e08a8a; }
+
+.countdown {
+  display: flex;
+  gap: 22px;
+  margin-top: 44px;
+}
+
+.unit {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.unit span {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 1.9rem;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.unit small {
+  font-size: 0.75rem;
+  color: var(--ink-dim);
+  margin-top: 2px;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+}
+
+.socials { display: flex; gap: 14px; }
+
+.socials a {
+  display: inline-flex;
+  color: var(--ink-dim);
+  transition: color 0.15s ease;
+}
+
+.socials a:hover { color: var(--gold); }
+
+.socials svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+@media (max-width: 460px) {
+  .signup { flex-direction: column; }
+  .countdown { gap: 16px; flex-wrap: wrap; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
